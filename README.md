@@ -1,6 +1,7 @@
 # Whatsapp Clone
 
 Simple webapp using Next.js, ChakraUI, and firebase to simulate basic whatsapp functionality
+Access to the website here: https://chat-app-chi-swart.vercel.app/
 
 ## Usage
 
