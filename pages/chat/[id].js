@@ -1,34 +1,18 @@
-import { Avatar, Button, Flex, FormControl, Heading, Input, Text } from "@chakra-ui/react"
+import { Flex, Text } from "@chakra-ui/react"
 import Sidebar from "../../components/Sidebar"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useCollectionData, useDocumentData } from 'react-firebase-hooks/firestore';
 import { collection, doc, orderBy, query} from "firebase/firestore";
 import { db, auth} from "../../firebaseconfig";
-import { userAgent } from "next/server";
 import { useAuthState } from "react-firebase-hooks/auth";
 import getOtherEmail from "../../utils/getOtherEmail";
+import Topbar from "../../components/Topbar";
+import Bottombar from "../../components/Bottombar";
+import { useEffect, useRef } from "react";
 
 
-const Topbar = ({email}) => {
 
-    return (
-        <Flex bg={"gray.100"} h={"81px"} w={"100%"}align={"center"} p={5}>
-            <Avatar src="" marginEnd={3}/>
-            <Heading size={"lg"}>{email}</Heading>
-        </Flex>
-    )
-}
-
-const Bottombar = () => {
-
-    return (
-        <FormControl p={3}>
-            <Input placeholder="Type a message" autoComplete="off"/>
-            <Button type="submit" hidden>Submit</Button>
-        </FormControl>
-    )
-}
 
 // TODO GET RID OF MATH. RANDOPM
 // ADD RULES TO DB
@@ -44,6 +28,8 @@ export default function Chat () {
 
     const [chat] = useDocumentData(doc(db, "chats", id));
 
+    const bottomOfChat = useRef();
+
     const getMessages = () =>
         messages?.map(msg => {
 
@@ -56,10 +42,23 @@ export default function Chat () {
             )
         })
 
-    
-
-    return (
+        useEffect(() => {
+            const timer = setTimeout(() => {
+                if (bottomOfChat.current) {
+                    bottomOfChat.current.scrollIntoView({
+                        behavior: "smooth",
+                        block: 'start',
+                    });
+                }
+            }, 100);
         
+            // Cleanup function to clear the timeout if the component unmounts
+            return () => clearTimeout(timer);
+        }, [messages]); // Assuming you want this effect to run every time 'messages' changes
+        
+
+    
+    return (
         <Flex
             h={"100vh"}
             >
@@ -76,10 +75,11 @@ export default function Chat () {
                 <Flex flex={1} direction={"column"} pt={4} mx={4} overflowX={"scroll"} sx={{scrollbarWidth: "none"}}>
                     
                     {getMessages()}
+                    <div ref={bottomOfChat}></div>
                     
                 </Flex>
 
-                <Bottombar />
+                <Bottombar id={id} user={user}/>
             </Flex>
         </Flex>
     )
